@@ -1,0 +1,42 @@
+.page {
+  padding: 24px 0;
+}
+
+.list {
+  display: grid;
+  gap: 16px;
+  
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.noResults {
+  text-align: center;
+  padding: 24px;
+  color: #6c757d;
+  font-size: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  width: 100%;
+  grid-column: 1 / -1; // Растягиваем на всю ширину грида
+}
+
+// Добавляем стили для заголовка и фильтров
+.header {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+  }
+}
+
+// Add margin to main content to account for fixed navbar
+:global(main) {
+  margin-top: 64px;
+}

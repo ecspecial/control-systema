@@ -1,0 +1,936 @@
+.journalContent {
+  margin-top: 24px;
+}
+
+.violationForm {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #212529;
+  }
+
+  .select {
+    margin-bottom: 8px;
+  }
+
+  .input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+
+    &[type="number"] {
+      width: 120px;
+    }
+  }
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px;
+  background: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #0b5ed7;
+  }
+
+  &:active {
+    background: #0a58ca;
+  }
+
+  &:disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+  }
+}
+
+.nonFixableText {
+  color: #dc3545;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+.fixDeadlineInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .input {
+    width: 80px;
+  }
+
+  .daysLabel {
+    color: #6c757d;
+  }
+}
+
+:global {
+  .select__control {
+    min-height: 38px;
+    border-color: #dee2e6;
+    border-radius: 6px;
+    box-shadow: none;
+
+    &:hover {
+      border-color: #adb5bd;
+    }
+
+    &--is-focused {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+  }
+
+  .select__menu {
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .select__option {
+    padding: 8px 12px;
+    cursor: pointer;
+
+    &--is-selected {
+      background: #0d6efd;
+    }
+
+    &--is-focused {
+      background: rgba(13, 110, 253, 0.1);
+    }
+  }
+
+  .select__value-container {
+    padding: 2px 12px;
+  }
+
+  .select__indicator-separator {
+    display: none;
+  }
+}
+
+.violationsList {
+  margin-top: 32px;
+
+  h3 {
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: #212529;
+  }
+}
+
+.loading {
+  text-align: center;
+  color: #6c757d;
+  padding: 24px;
+}
+
+.noViolations {
+  text-align: center;
+  color: #6c757d;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.violationItem {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.violationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.violationCategory {
+  font-weight: 500;
+  color: #495057;
+}
+
+.violationStatus {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+
+  &.open {
+    background: rgba(255, 193, 7, 0.1);
+    color: #856404;
+  }
+
+  &.in_progress {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
+
+  &.fixed {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+  }
+
+  &.verified {
+    background: rgba(25, 135, 84, 0.1);
+    color: #198754;
+  }
+
+  &.rejected {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+  }
+}
+
+.violationName {
+  font-size: 15px;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.violationDetails {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #6c757d;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.violationDocuments {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #dee2e6;
+
+  h4 {
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #495057;
+  }
+}
+
+.documentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.documentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.documentName {
+  font-size: 14px;
+  color: #495057;
+}
+
+.downloadButton {
+  padding: 4px 12px;
+  background: #0d6efd;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #0b5ed7;
+  }
+}
+
+.documentUpload {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .fileInput {
+    display: none;
+  }
+
+  .uploadLabel {
+    flex: 1;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    border-radius: 6px;
+    color: #6c757d;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #adb5bd;
+      background: #f1f3f5;
+    }
+  }
+
+  .uploadButton {
+    padding: 8px 16px;
+    background: #0d6efd;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #0b5ed7;
+    }
+
+    &:disabled {
+      background: #adb5bd;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.documentUploadSection {
+  margin-top: 10px;
+  
+  .fileInput {
+    display: none;
+  }
+  
+  .uploadLabel {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+.selectedFiles {
+  margin-top: 10px;
+  
+  .selectedFile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: #f8f8f8;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    
+    .removeFileButton {
+      background: none;
+      border: none;
+      color: #ff4444;
+      cursor: pointer;
+      padding: 4px 8px;
+      
+      &:hover {
+        color: #cc0000;
+      }
+    }
+  }
+}
+
+// Update existing styles for the violation item document section
+.violationDocuments {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .documentsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .documentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    
+    .documentName {
+      font-size: 14px;
+      color: #333;
+    }
+    
+    .downloadButton {
+      padding: 4px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+}
+
+.locationStatus {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  
+  .checkingLocation {
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  .locationVerified {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #28a745;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .locationWarning {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #dc3545;
+    
+    span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  
+  .retryButton {
+    padding: 6px 12px;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background-color: currentColor;
+      color: white;
+    }
+  }
+}
+
+.violationForm {
+  &.formDisabled {
+    opacity: 0.8;
+    pointer-events: none;
+    position: relative;
+    
+    &::after {
+      content: "Необходимо находиться на объекте для внесения замечаний";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+  }
+}
+
+.submitButton {
+  &:disabled {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: #e9ecef;
+    }
+  }
+}
+
+.select {
+  &:global(.select__control--is-disabled) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    
+    :global(.select__placeholder) {
+      color: #dc3545;
+    }
+  }
+}
+
+.violationMetadata {
+  margin-top: 12px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 14px;
+
+  .violationTime,
+  .violationLocation {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      color: #6c757d;
+      font-weight: 500;
+    }
+
+    .value {
+      color: #212529;
+    }
+
+    .accuracy {
+      color: #6c757d;
+      font-size: 12px;
+    }
+  }
+}
+
+.responseForm {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+
+  .formGroup {
+    margin-bottom: 16px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #495057;
+    }
+  }
+
+  .responseTextarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+
+    &:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+  }
+
+  .documentUploadSection {
+    .fileInput {
+      display: none;
+    }
+
+    .uploadLabel {
+      display: inline-block;
+      padding: 8px 16px;
+      background-color: #e9ecef;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #495057;
+      transition: all 0.2s;
+
+      &:hover {
+        background-color: #dee2e6;
+      }
+    }
+
+    .selectedFiles {
+      margin-top: 12px;
+      
+      .selectedFile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        margin-bottom: 8px;
+
+        span {
+          font-size: 14px;
+          color: #495057;
+        }
+
+        .removeFileButton {
+          background: none;
+          border: none;
+          color: #dc3545;
+          cursor: pointer;
+          padding: 4px 8px;
+          font-size: 16px;
+          line-height: 1;
+          border-radius: 4px;
+
+          &:hover {
+            background-color: #fff5f5;
+          }
+        }
+      }
+    }
+  }
+
+  .submitButton {
+    width: 100%;
+    padding: 12px;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background-color: #0b5ed7;
+    }
+
+    &:disabled {
+      background-color: #e9ecef;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.violationResponses {
+  margin-top: 16px;
+  border-top: 1px solid #dee2e6;
+  padding-top: 16px;
+
+  h4 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    color: #495057;
+  }
+
+  .responseItem {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+
+    .responseHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .responseStatus {
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        white-space: nowrap;
+        
+        &[data-status="awaiting_approval"] {
+          background-color: rgba(234, 179, 8, 0.1);
+          color: #854d0e;
+        }
+
+        &[data-status="approved"] {
+          background-color: rgba(5, 150, 105, 0.1);
+          color: #059669;
+        }
+
+        &[data-status="needs_revision"] {
+          background-color: rgba(220, 38, 38, 0.1);
+          color: #dc2626;
+        }
+      }
+
+      .responseDate {
+        color: #6c757d;
+        font-size: 13px;
+      }
+    }
+
+    .responseDescription {
+      margin-bottom: 12px;
+      color: #212529;
+    }
+
+    .responseDocuments {
+      margin-top: 12px;
+
+      h5 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: #495057;
+      }
+
+      .documentItem {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-bottom: 8px;
+
+        .documentName {
+          font-size: 14px;
+          color: #495057;
+        }
+
+        .downloadButton {
+          padding: 4px 8px;
+          background-color: #0d6efd;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #0b5ed7;
+          }
+        }
+      }
+    }
+
+    .controllerComment {
+      margin-top: 12px;
+      padding: 8px;
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      border-radius: 4px;
+      color: #856404;
+    }
+  }
+
+  .noResponses {
+    color: #6c757d;
+    text-align: center;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+}
+
+.statusControls {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.statusButton {
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 120px;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.approveButton {
+  background-color: #ffffff;
+  color: #059669;
+  border-color: #059669;
+
+  &:hover {
+    background-color: rgba(5, 150, 105, 0.1); // 10% opacity instead of solid color
+    color: #059669; // Keep text color the same
+    border-color: #059669;
+  }
+}
+
+.rejectButton {
+  background-color: #ffffff;
+  color: #dc2626;
+  border-color: #dc2626;
+
+  &:hover {
+    background-color: rgba(220, 38, 38, 0.1); // 10% opacity instead of solid color
+    color: #dc2626; // Keep text color the same
+    border-color: #dc2626;
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    color: #1f2937;
+  }
+}
+
+.commentTextarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modalButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelButton {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+
+  &:hover:not(:disabled) {
+    background: #f9fafb;
+  }
+}
+
+.submitButton {
+  background: white;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(220, 38, 38, 0.1);
+  }
+}

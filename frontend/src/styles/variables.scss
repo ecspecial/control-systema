@@ -1,0 +1,35 @@
+// Цвета
+$color-primary: #0148B4;
+$color-success: #00B027;
+$color-error: #FF4C4C;
+$color-warning: #FF9500;
+
+$color-text: #000000;
+$color-text-secondary: #666666;
+$color-background: #F5F7F9;
+$color-border: #E5E5E5;
+$color-white: #FFFFFF;
+
+// Размеры
+$mobile-width: 768px;
+$tablet-width: 1024px;
+$desktop-width: 1200px;
+
+// Миксины
+@mixin mobile {
+  @media (max-width: #{$mobile-width}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$mobile-width + 1px}) and (max-width: #{$tablet-width}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$tablet-width + 1px}) {
+    @content;
+  }
+}

@@ -1,0 +1,474 @@
+.ttnDocuments {
+  padding: 16px;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.workTypesList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.workTypeItem {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+
+  h3 {
+    margin: 0 0 24px; // Increased margin
+    font-size: 18px;
+    color: #333;
+  }
+
+  .addTTNForm {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+  }
+}
+
+.ttnEntries {
+  margin-bottom: 24px; // Increased margin
+}
+
+.addTTN {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.addButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 14px;
+
+  &:hover {
+    background: #0056b3;
+  }
+}
+
+.documentsSection {
+  margin: 32px 0; // Increased margin
+}
+
+.documentInputs {
+  display: flex;
+  flex-direction: column; // Stack vertically on mobile
+  gap: 24px; // Increased gap
+  margin-bottom: 24px;
+
+  @media (min-width: 768px) {
+    flex-direction: row; // Side by side on desktop
+  }
+}
+
+.documentInput {
+  flex: 1;
+  min-width: 0; // Prevent overflow
+
+  label {
+    display: block;
+    margin-bottom: 12px; // Increased margin
+    color: #343a40;
+    font-weight: 500;
+    font-size: 14px;
+  }
+}
+
+.fileInputWrapper {
+  width: 100%;
+}
+
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.fileInputLabel {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #495057;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+  }
+
+  &:disabled {
+    background: #e9ecef;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+}
+
+.addTTNForm {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 32px; // Increased margin
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 24px; // Increased margin
+    font-size: 18px;
+    color: #333;
+  }
+}
+
+.formGroup {
+  margin-bottom: 24px;
+
+  label {
+    display: block;
+    margin-bottom: 12px;
+    color: #343a40;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px 16px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    resize: vertical;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #212529;
+
+    &:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+
+    // Remove scroll arrows
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
+
+    // Hide arrows in Firefox
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+  }
+}
+
+.selectedFiles {
+  background: #f8f9fa;
+  border-radius: 4px;
+  padding: 16px;
+  margin-top: 24px; // Increased margin
+
+  > label {
+    display: block;
+    margin-bottom: 16px;
+    color: #343a40;
+    font-weight: 500;
+    font-size: 14px;
+  }
+}
+
+.selectedFile {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #495057;
+  word-break: break-word; // Handle long filenames
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  span {
+    margin-right: 12px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.formActions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 32px; // Increased margin
+  flex-wrap: wrap; // Allow wrapping on mobile
+}
+
+.cancelButton, .submitButton {
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  text-align: center;
+
+  @media (max-width: 480px) {
+    width: 100%; // Full width on mobile
+    min-width: auto;
+  }
+}
+
+.cancelButton {
+  background: #ffffff;
+  color: #495057;
+  border: 1px solid #dee2e6;
+
+  &:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+  }
+}
+
+.submitButton {
+  background: #0d6efd;
+  color: white;
+  border: 1px solid #0d6efd;
+
+  &:hover:not(:disabled) {
+    background: #0b5ed7;
+    border-color: #0a58ca;
+  }
+
+  &:disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+  }
+}
+
+.removeFileButton {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e9ecef;
+    color: #dc3545;
+  }
+}
+
+.ttnEntry {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #dee2e6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.ttnEntryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ttnEntryDate {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.ttnEntryDescription {
+  margin: 0 0 16px;
+  color: #212529;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ttnEntryDocuments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ttnEntryDocument {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 14px;
+
+  span {
+    margin-right: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.downloadButton {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 14px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+  }
+}
+
+.ocrSection {
+  margin-top: 16px;
+  
+  .ocrSubmitButton {
+    margin-top: 12px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background: #0b5ed7;
+    }
+
+    &:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.ocrContent {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ocrSubmitButton {
+  padding: 12px 24px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  min-width: 120px;
+
+  &:hover:not(:disabled) {
+    background: #218838;
+  }
+
+  &:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+}
+
+.ocrStatus {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #dee2e6;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.ocrStatusText {
+  color: #495057;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ocrLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: #343a40;
+  font-weight: 500;
+  font-size: 14px;
+}

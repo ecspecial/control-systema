@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: city-service-api
+    ports:
+      - '${PORT}:${PORT}'
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - UPLOAD_PATH=/app/uploads
+    volumes:
+      - ./logs:/app/logs
+      - .:/app
+      - /app/node_modules
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    networks:
+      - city_service_network
+
+networks:
+  city_service_network:
+    external: true

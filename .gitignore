@@ -1,0 +1,36 @@
+# Dependencies
+**/node_modules/
+**/venv/
+
+# Build outputs
+**/dist/
+**/build/
+
+# Environment files
+# **/.env
+# **/.env.local
+# **/.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+**/logs/
+*.log
+
+# Python specific
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+
+# Frontend specific
+**/coverage/
+**/.DS_Store
+
+# Backend specific
+**/uploads/**

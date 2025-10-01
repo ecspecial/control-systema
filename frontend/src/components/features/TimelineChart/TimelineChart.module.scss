@@ -1,0 +1,74 @@
+:global {
+  .vis-timeline {
+    border: none !important;
+    font-family: inherit;
+    
+    .vis-item {
+      background-color: #0d6efd !important;
+      color: white !important;
+      border-color: #0b5ed7 !important;
+      border-radius: 4px;
+      height: 40px !important;
+      
+      &:hover {
+        background-color: #0b5ed7 !important;
+      }
+
+      .vis-item-content {
+        padding: 8px 12px !important;
+        font-size: 14px;
+        color: white !important;
+        background: none !important;
+      }
+
+      &.vis-range {
+        background-color: #0d6efd !important;
+        border-color: #0b5ed7 !important;
+        
+        .vis-item-content {
+          background-color: #0d6efd !important;
+        }
+      }
+    }
+    
+    .vis-time-axis {
+      .vis-text {
+        color: #495057;
+        font-size: 13px;
+      }
+      
+      .vis-grid.vis-minor {
+        border-color: #dee2e6;
+      }
+      
+      .vis-grid.vis-major {
+        border-color: #ced4da;
+      }
+    }
+
+    .vis-panel.vis-center,
+    .vis-panel.vis-left,
+    .vis-panel.vis-right {
+      border: none;
+    }
+
+    // Force background color for items
+    .vis-background .vis-minor,
+    .vis-background .vis-major,
+    .vis-foreground .vis-minor,
+    .vis-foreground .vis-major {
+      background-color: white !important;
+    }
+
+    // Force item colors
+    .vis-item.vis-background,
+    .vis-item.vis-line,
+    .vis-item.vis-dot,
+    .vis-item.vis-point,
+    .vis-item.vis-box,
+    .vis-item.vis-range {
+      background-color: #0d6efd !important;
+      border-color: #0b5ed7 !important;
+    }
+  }
+}

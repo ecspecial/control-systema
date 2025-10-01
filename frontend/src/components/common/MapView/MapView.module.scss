@@ -1,0 +1,51 @@
+.mapContainer {
+  width: 100%;
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 16px 0;
+  position: relative;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.marker {
+  cursor: move !important;
+  transition: transform 0.1s ease;
+  
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.midpointMarker {
+  cursor: pointer !important;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  
+  &:hover {
+    transform: scale(1.5);
+    opacity: 1;
+    background-color: rgba(255, 0, 0, 0.8) !important;
+  }
+}
+
+.hint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  pointer-events: none;
+  z-index: 1;
+  max-width: 90%;
+  text-align: center;
+}

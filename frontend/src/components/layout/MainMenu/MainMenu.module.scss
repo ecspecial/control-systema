@@ -1,0 +1,201 @@
+@use '../../../styles/variables.scss' as *;
+
+.menu {
+  background: $color-white;
+  border-bottom: 1px solid $color-border;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.container {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  max-width: 1440px; // Add max-width
+  margin: 0 auto; // Center the container
+  width: 100%; // Ensure full width
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  background: rgba($color-primary, 0.03);
+  white-space: nowrap; // Prevent text wrapping
+
+  img {
+    height: 32px;
+    width: auto;
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 18px;
+    color: $color-text;
+    
+    @media (max-width: 1024px) {
+      display: none;
+    }
+  }
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.menuButton {
+  display: none;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: $color-text;
+
+  @media (max-width: 930px) {
+    display: block;
+    order: 1;
+  }
+}
+
+.links {
+  display: flex;
+  gap: 32px;
+
+  a {
+    color: $color-text-secondary;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+      color: $color-primary;
+      background: rgba($color-primary, 0.05);
+    }
+
+    &.active {
+      color: $color-primary;
+      background: rgba($color-primary, 0.1);
+      font-weight: 500;
+    }
+  }
+
+  @media (max-width: 930px) {
+    display: none;
+    
+    &.open {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: $color-white;
+      padding: 16px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 99;
+
+      a {
+        padding: 12px 16px;
+        font-size: 16px;
+        text-align: left; // Align left instead of center
+        border-radius: 8px;
+      }
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.profile {
+  position: relative;
+  cursor: pointer;
+}
+
+.profileIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  min-width: 200px;
+  z-index: 1000;
+}
+
+.userName {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.userRole {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.logoutButton {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #dc3545;
+  font-weight: 500;
+
+  &:hover {
+    background: #dc3545;
+    color: white;
+  }
+}
+
+// Add margin to main content
+:global(body) {
+  padding-top: 64px; // Add padding to account for fixed header
+}
+
+@media (max-width: 930px) {
+  .rightSection {
+    gap: 16px;
+  }
+
+  .profile {
+    order: 0;
+  }
+
+  .profileDropdown {
+    right: -16px;
+  }
+}

@@ -1,0 +1,13 @@
+version: '3'
+services:
+  ocr-service:
+    build: .
+    container_name: ocr-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+    restart: unless-stopped
