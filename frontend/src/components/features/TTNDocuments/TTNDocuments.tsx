@@ -48,6 +48,33 @@ interface QueueTimer {
   intervalId?: number;
 }
 
+// Add new interfaces
+interface QueuedTTN {
+  id: string;
+  workTypeId: string;
+  description: string;
+  createdAt: string;
+  status: 'pending_ocr' | 'processing_ocr' | 'completed';
+  documents?: Array<{
+    id: string;
+    name: string;
+    type: string;
+    path: string;
+  }>;
+}
+
+// Add interface for TTN creation data
+interface CreateTTNData {
+  description: string;
+  status?: 'pending_ocr' | 'completed';  // Make status optional
+}
+
+// Add state for selected OCR files in queue
+interface QueuedOCRFile {
+  ttnId: string;
+  file: File;
+}
+
 export const TTNDocuments: FC<TTNDocumentsProps> = ({ 
   objectId, 
   onNotification,
@@ -79,6 +106,12 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
   const [isAtLocation, setIsAtLocation] = useState<boolean>(false);
   const [checkingLocation, setCheckingLocation] = useState<boolean>(false);
   const [lastVerifiedLocation, setLastVerifiedLocation] = useState<GeolocationPosition | null>(null);
+
+  // Add state for queued TTNs
+  const [queuedTTNs, setQueuedTTNs] = useState<QueuedTTN[]>([]);
+  
+  // Add state for selected OCR files in queue
+  const [queuedOCRFiles, setQueuedOCRFiles] = useState<QueuedOCRFile[]>([]);
 
   // Add a ref to track if we've received a successful response
   const hasReceivedResult = useRef(false);
@@ -141,7 +174,7 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
     fetchWorkTypes();
   }, [objectId]);
 
-  const startOCRPolling = (taskId: string, workTypeId: string) => {
+  const startOCRPolling = (taskId: string, workTypeId: string, queuedTTNId?: string) => {
     const intervalId = window.setInterval(async () => {
       // Don't make the request if we already got a result
       if (hasReceivedResult.current) {
@@ -154,6 +187,29 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
         if (result.status === 'completed' && result.text) {
           // Set the flag to prevent further requests
           hasReceivedResult.current = true;
+
+          // Update TTN entry with OCR result
+          if (queuedTTNId) {
+            // Update queued TTN status
+            setQueuedTTNs(prev => prev.map(ttn => 
+              ttn.id === queuedTTNId 
+                ? { ...ttn, status: 'completed' }
+                : ttn
+            ));
+
+            // Update the TTN entry description
+            const ttnData: CreateTTNData = {
+              description: result.text,
+              status: 'completed'
+            };
+            
+            try {
+              await ttnService.createTTNEntry(objectId, workTypeId, ttnData);
+              await fetchTTNEntries(workTypeId);
+            } catch (error) {
+              console.error('Error updating TTN entry:', error);
+            }
+          }
 
           // Update description if we're currently editing this work type
           if (selectedWorkType?.id === workTypeId) {
@@ -261,34 +317,52 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
   }, [polygon]); // Remove onNotification from deps array
 
   // Modify handleSubmit to update the entries after successful addition
-  const handleSubmit = async () => {
-    if (!selectedWorkType || !description || selectedFiles.length === 0) return;
+  const handleSubmit = async (queueForOCR: boolean = false) => {
+    if (!selectedWorkType || !description) return;
 
     if (!isAtLocation || !lastVerifiedLocation) {
-      notifyRef.current('Необходимо подтвердить местоположение', 'error');
+      onNotification('Необходимо подтвердить местоположение', 'error');
       return;
     }
 
     setUploading(true);
     try {
-      const ttnEntry = await ttnService.createTTNEntry(objectId, selectedWorkType.id, {
-        description
-      });
+      const ttnData: CreateTTNData = {
+        description,
+        ...(queueForOCR ? { status: 'pending_ocr' } : {})
+      };
 
-      await Promise.all(selectedFiles.map(docFile => 
-        ttnService.uploadDocument(objectId, selectedWorkType.id, ttnEntry.id, docFile.file)
-      ));
+      const ttnEntry = await ttnService.createTTNEntry(objectId, selectedWorkType.id, ttnData);
+
+      if (selectedFiles.length > 0) {
+        await Promise.all(selectedFiles.map(docFile => 
+          ttnService.uploadDocument(objectId, selectedWorkType.id, ttnEntry.id, docFile.file)
+        ));
+      }
+
+      // If queuing for OCR, add to local queue
+      if (queueForOCR) {
+        setQueuedTTNs(prev => [...prev, {
+          id: ttnEntry.id,
+          workTypeId: selectedWorkType.id,
+          description: description,
+          createdAt: new Date().toISOString(),
+          status: 'pending_ocr'
+        }]);
+        onNotification('ТТН добавлена в очередь на распознавание', 'success');
+      } else {
+        onNotification('Документы успешно добавлены', 'success');
+      }
 
       // Refresh TTN entries for this work type
       await fetchTTNEntries(selectedWorkType.id);
-
-      notifyRef.current('Документы успешно добавлены', 'success');
+      
       setDescription('');
       setSelectedFiles([]);
       setSelectedWorkType(null);
     } catch (error) {
       console.error('Error creating TTN entry:', error);
-      notifyRef.current('Ошибка при создании записи', 'error');
+      onNotification('Ошибка при создании записи', 'error');
     } finally {
       setUploading(false);
     }
@@ -351,6 +425,37 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
     }
   };
 
+  // Add function to process queued TTN
+  const processQueuedTTN = async (queuedTTN: QueuedTTN, file: File) => {
+    try {
+      setQueuedTTNs(prev => prev.map(ttn => 
+        ttn.id === queuedTTN.id 
+          ? { ...ttn, status: 'processing_ocr' }
+          : ttn
+      ));
+
+      const result = await ocrService.submitOCR(file);
+      
+      if (result.task_id) {
+        startOCRPolling(result.task_id, queuedTTN.workTypeId, queuedTTN.id);
+        onNotification('Документ отправлен на распознавание', 'success');
+        
+        if (result.queue_position) {
+          startQueueTimer(result.queue_position);
+        }
+      }
+    } catch (error) {
+      console.error('Error processing queued TTN:', error);
+      onNotification('Ошибка при отправке документа на распознавание', 'error');
+      
+      setQueuedTTNs(prev => prev.map(ttn => 
+        ttn.id === queuedTTN.id 
+          ? { ...ttn, status: 'pending_ocr' }
+          : ttn
+      ));
+    }
+  };
+
   const canAddDocuments = userRole === UserRole.CONTROL || userRole === UserRole.INSPECTOR || userRole === UserRole.CONTRACTOR;
 
   console.log('🔍 TTN Debug:', { 
@@ -398,6 +503,75 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
           </div>
         )}
       </div>
+
+      {/* Add OCR Queue section */}
+      {queuedTTNs.length > 0 && (
+        <div className={styles.ocrQueue}>
+          <h3>Очередь на распознавание</h3>
+          <div className={styles.queueList}>
+            {queuedTTNs.map(queuedTTN => (
+              <div key={queuedTTN.id} className={styles.queueItem}>
+                <div className={styles.queueItemInfo}>
+                  <span className={styles.queueItemDate}>
+                    {new Date(queuedTTN.createdAt).toLocaleDateString('ru')}
+                  </span>
+                  <p className={styles.queueItemDescription}>{queuedTTN.description}</p>
+                </div>
+                {queuedTTN.status === 'pending_ocr' && (
+                  <div className={styles.queueItemActions}>
+                    <div className={styles.fileInputWrapper}>
+                      <input
+                        type="file"
+                        id={`ocr-${queuedTTN.id}`}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setQueuedOCRFiles(prev => [
+                              ...prev.filter(item => item.ttnId !== queuedTTN.id),
+                              { ttnId: queuedTTN.id, file }
+                            ]);
+                          }
+                          // Reset input
+                          e.target.value = '';
+                        }}
+                        accept="image/*"
+                        className={styles.fileInput}
+                      />
+                      <label htmlFor={`ocr-${queuedTTN.id}`} className={styles.fileInputLabel}>
+                        {queuedOCRFiles.find(item => item.ttnId === queuedTTN.id)?.file.name || 
+                         'Выберите фото для распознавания'}
+                      </label>
+                    </div>
+                    {queuedOCRFiles.find(item => item.ttnId === queuedTTN.id) && (
+                      <button
+                        className={styles.ocrSubmitButton}
+                        onClick={() => {
+                          const ocrFile = queuedOCRFiles.find(item => item.ttnId === queuedTTN.id);
+                          if (ocrFile) {
+                            processQueuedTTN(queuedTTN, ocrFile.file);
+                            // Remove from queued files after processing
+                            setQueuedOCRFiles(prev => 
+                              prev.filter(item => item.ttnId !== queuedTTN.id)
+                            );
+                          }
+                        }}
+                      >
+                        Отправить на распознавание
+                      </button>
+                    )}
+                  </div>
+                )}
+                {queuedTTN.status === 'processing_ocr' && (
+                  <div className={styles.queueItemStatus}>
+                    <div className={styles.spinner}></div>
+                    <span>Распознавание...</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Rest of your existing workTypesList */}
       <div className={styles.workTypesList}>
@@ -545,8 +719,15 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({
                     Отменить
                   </button>
                   <button
+                    className={styles.queueButton}
+                    onClick={() => handleSubmit(true)}
+                    disabled={!description || uploading}
+                  >
+                    Добавить в очередь
+                  </button>
+                  <button
                     className={styles.submitButton}
-                    onClick={handleSubmit}
+                    onClick={() => handleSubmit(false)}
                     disabled={!description || selectedFiles.length === 0 || uploading}
                   >
                     {uploading ? 'Загрузка...' : 'Сохранить'}

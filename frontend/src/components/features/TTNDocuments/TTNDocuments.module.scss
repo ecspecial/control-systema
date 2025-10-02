@@ -116,6 +116,7 @@
   text-overflow: ellipsis;
   text-align: left;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  max-width: 100%;
 
   &:hover {
     background: #f8f9fa;
@@ -538,5 +539,114 @@
   &.formDisabled {
     opacity: 0.7;
     pointer-events: none;
+  }
+}
+
+.ocrQueue {
+  margin: 20px 0;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+
+  h3 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    color: #333;
+  }
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.queueItem {
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.queueItemInfo {
+  margin-bottom: 12px;
+}
+
+.queueItemDate {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.queueItemDescription {
+  margin: 8px 0;
+  color: #212529;
+}
+
+.queueItemActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .fileInputWrapper {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .ocrSubmitButton {
+    padding: 8px 16px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #0b5ed7;
+    }
+  }
+}
+
+.queueItemStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #0d6efd;
+  
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #dee2e6;
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.queueButton {
+  padding: 8px 16px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #5a6268;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
