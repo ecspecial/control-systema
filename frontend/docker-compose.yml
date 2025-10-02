@@ -14,3 +14,10 @@ services:
       - VITE_API_URL=${VITE_API_URL}
       - VITE_OCR_API_URL=${VITE_OCR_API_URL}
     restart: unless-stopped
+    networks:
+      - city_service_network
+
+networks:
+  city_service_network:
+    name: city_service_network
+    driver: bridge
