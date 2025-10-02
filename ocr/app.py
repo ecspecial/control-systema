@@ -9,6 +9,8 @@ import asyncio
 import uuid
 from contextlib import asynccontextmanager
 from typing import Dict, Optional
+from functools import partial
+from concurrent.futures import ThreadPoolExecutor
 
 # Set up detailed logging
 logging.basicConfig(
@@ -26,9 +28,12 @@ process_queue = asyncio.Queue()
 results_storage: Dict[str, Optional[Dict]] = {}
 MAX_QUEUE_SIZE = 10  # Limit queue size
 
+worker_task = None
+executor = ThreadPoolExecutor(max_workers=1)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global ocr
+    global ocr, worker_task
     logger.info("=" * 60)
     logger.info("APPLICATION STARTUP")
     logger.info("=" * 60)
@@ -36,13 +41,22 @@ async def lifespan(app: FastAPI):
     ocr = PaddleOCR(lang='ru', use_textline_orientation=True)
     logger.info("PaddleOCR initialized successfully!")
     
-    # Start background worker
-    asyncio.create_task(process_queue_worker())
+    # Start background worker with proper loop handling
+    loop = asyncio.get_running_loop()
+    worker_task = loop.create_task(process_queue_worker())
     
     logger.info("Queue worker started")
     logger.info("Ready to process images")
     logger.info("=" * 60)
     yield
+    # Cleanup
+    if worker_task:
+        worker_task.cancel()
+        try:
+            await worker_task
+        except asyncio.CancelledError:
+            pass
+    executor.shutdown(wait=False)
     logger.info("Application shutting down...")
 
 app = FastAPI(lifespan=lifespan)
@@ -57,15 +71,22 @@ app.add_middleware(
 )
 
 async def process_queue_worker():
+    logger.info("Queue worker started")
     while True:
         try:
-            # Get task from queue
-            task_id, temp_path = await process_queue.get()
-            logger.info(f"Processing task {task_id}")
+            # Get task from queue with timeout
+            try:
+                task_id, temp_path = await asyncio.wait_for(process_queue.get(), timeout=1.0)
+                logger.info(f"Got task {task_id} from queue")
+            except asyncio.TimeoutError:
+                continue
 
             try:
-                # Process image
-                result = ocr.predict(temp_path)
+                # Run OCR in thread pool
+                loop = asyncio.get_running_loop()
+                logger.info(f"Starting OCR for {task_id}")
+                predict_func = partial(ocr.predict, temp_path)
+                result = await loop.run_in_executor(executor, predict_func)
                 
                 # Extract text
                 full_text = ""

@@ -27,5 +27,5 @@ COPY app.py .
 # Expose the port
 EXPOSE 8000
 
-# Run the application
-CMD ["python", "app.py"]
+# Run the application using uvicorn factory pattern
+CMD ["uvicorn", "app:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
