@@ -14,6 +14,10 @@ npm install
 docker-compose build
 docker-compose up -d
 
+npm run migration:run
+npm run seed
+
+
 
 sudo nano /etc/nginx/sites-available/control-systema.ru
 

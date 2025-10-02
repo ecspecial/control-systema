@@ -9,6 +9,7 @@ import asyncio
 import uuid
 from contextlib import asynccontextmanager
 from typing import Dict, Optional
+from functools import partial
 
 # Set up detailed logging
 logging.basicConfig(
@@ -36,13 +37,16 @@ async def lifespan(app: FastAPI):
     ocr = PaddleOCR(lang='ru', use_textline_orientation=True)
     logger.info("PaddleOCR initialized successfully!")
     
-    # Start background worker
-    asyncio.create_task(process_queue_worker())
+    # Get the running loop and create worker task
+    loop = asyncio.get_running_loop()
+    worker_task = loop.create_task(process_queue_worker())
     
     logger.info("Queue worker started")
     logger.info("Ready to process images")
     logger.info("=" * 60)
     yield
+    # Cancel worker task on shutdown
+    worker_task.cancel()
     logger.info("Application shutting down...")
 
 app = FastAPI(lifespan=lifespan)
@@ -59,13 +63,19 @@ app.add_middleware(
 async def process_queue_worker():
     while True:
         try:
-            # Get task from queue
-            task_id, temp_path = await process_queue.get()
+            # Get task from queue with timeout
+            try:
+                task_id, temp_path = await asyncio.wait_for(process_queue.get(), timeout=1.0)
+            except asyncio.TimeoutError:
+                continue
+
             logger.info(f"Processing task {task_id}")
 
             try:
-                # Process image
-                result = ocr.predict(temp_path)
+                # Run OCR in thread pool
+                loop = asyncio.get_running_loop()
+                predict_func = partial(ocr.predict, temp_path)
+                result = await loop.run_in_executor(None, predict_func)
                 
                 # Extract text
                 full_text = ""
@@ -121,7 +131,7 @@ async def health_check():
         "max_queue_size": MAX_QUEUE_SIZE
     }
 
-@app.post("/ocr")
+@app.post("/")
 async def process_image(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     try:
         # Check queue size first - fast operation
@@ -153,7 +163,7 @@ async def process_image(background_tasks: BackgroundTasks, file: UploadFile = Fi
         logger.error(f"Error creating task: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/ocr/{task_id}")
+@app.get("/{task_id}")
 async def get_result(task_id: str):
     if task_id not in results_storage:
         raise HTTPException(status_code=404, detail="Task not found")
