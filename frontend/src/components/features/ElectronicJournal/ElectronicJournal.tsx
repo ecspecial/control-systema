@@ -352,7 +352,9 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
   ) => {
     e.preventDefault();
     try {
-      await filesService.downloadFile(objectId, document.path, document.originalName || document.name);
+      // Extract just the filename from the path
+      const fileId = document.path.split('/').pop() || document.path;
+      await filesService.downloadFile(objectId, fileId, document.originalName || document.name);
     } catch (error) {
       console.error('Download error:', error);
       onNotification('Ошибка при скачивании файла', 'error');
