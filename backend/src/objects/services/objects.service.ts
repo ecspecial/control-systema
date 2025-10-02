@@ -1,12 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ObjectsRepository } from '../repositories/objects.repository';
 import { CreateObjectDto } from '../dto/create-object.dto';
 import { CityObject, ObjectStatus, WorkStatus } from '../entities/city-object.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource, In } from 'typeorm';
 import { ElectronicJournalService } from '../../electronic-journal/services/electronic-journal.service';
 import { UpdateScheduleDto, UpdateWorkTypeScheduleDto } from '../dto/update-schedule.dto';
 import * as fs from 'fs';
+import { TTNEntry } from '../entities/ttn-entry.entity';
+import { ElectronicJournal } from '../../electronic-journal/entities/electronic-journal.entity';
+import { Violation } from '../../electronic-journal/entities/violation.entity';
+import { ViolationResponse } from '../../electronic-journal/entities/violation-response.entity';
 
 interface Document {
   id: string;
@@ -30,6 +34,7 @@ export class ObjectsService {
     private readonly objectsRepository: ObjectsRepository,
     @InjectRepository(CityObject)
     private readonly objectRepository: Repository<CityObject>,
+    private readonly dataSource: DataSource,  // Add this
     private readonly electronicJournalService: ElectronicJournalService,
   ) {}
 
@@ -403,5 +408,63 @@ export class ObjectsService {
     workType.status = newStatus;
 
     return this.objectRepository.save(object);
+  }
+
+  async deleteObject(id: string): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Get the electronic journal first
+      const journal = await queryRunner.manager.findOne(ElectronicJournal, {
+        where: { cityObjectId: id }
+      });
+
+      if (journal) {
+        // Delete violation responses and documents first
+        await queryRunner.manager.delete(ViolationResponse, {
+          violation: { journalId: journal.id }
+        });
+
+        // Delete violations
+        await queryRunner.manager.delete(Violation, {
+          journalId: journal.id
+        });
+
+        // Delete the journal itself
+        await queryRunner.manager.delete(ElectronicJournal, {
+          id: journal.id
+        });
+      }
+
+      // Delete TTN entries
+      const ttnEntries = await queryRunner.manager.find(TTNEntry, {
+        where: { workTypeId: In(
+          await queryRunner.manager
+            .createQueryBuilder()
+            .select('workType.id')
+            .from(CityObject, 'obj')
+            .where('obj.id = :id', { id })
+            .getRawMany()
+        ) }
+      });
+
+      if (ttnEntries.length > 0) {
+        await queryRunner.manager.delete(TTNEntry, {
+          id: In(ttnEntries.map(entry => entry.id))
+        });
+      }
+
+      // Finally delete the object
+      await queryRunner.manager.delete(CityObject, { id });
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

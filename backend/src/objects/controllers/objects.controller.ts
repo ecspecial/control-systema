@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Patch, ForbiddenException, UseInterceptors, UploadedFile, Delete, InternalServerErrorException } from '@nestjs/common';
 import { ObjectsService } from '../services/objects.service';
 import { CreateObjectDto } from '../dto/create-object.dto';
 import { JwtAuthGuard } from '@shared/guards/jwt-auth.guard';
@@ -15,6 +15,13 @@ import { NotFoundException } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource, In } from 'typeorm';
+import { CityObject } from '../entities/city-object.entity';
+import { TTNEntry } from '../entities/ttn-entry.entity';
+import { ElectronicJournal } from '../../electronic-journal/entities/electronic-journal.entity';
+import { Violation } from '../../electronic-journal/entities/violation.entity';
+import { ViolationResponse } from '../../electronic-journal/entities/violation-response.entity';
 
 export class ApproveScheduleDto {
   approved: boolean;
@@ -196,5 +203,21 @@ export class ObjectsController {
   ) {
     const journal = await this.electronicJournalService.getJournalWithViolations(id);
     return journal.violations;
+  }
+
+  @Delete(':id')
+  async deleteObject(
+    @Param('id') id: string,
+    @Req() request: Request & { user: TokenPayload }
+  ) {
+    if (request.user.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Only admin users can delete objects');
+    }
+    try {
+      await this.objectsService.deleteObject(id);
+      return { message: 'Object and related data deleted successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to delete object');
+    }
   }
 }

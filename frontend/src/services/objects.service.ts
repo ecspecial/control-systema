@@ -156,5 +156,10 @@ export const objectsService = {
   createLaboratorySample: async (objectId: string, data: { materialName: string; description: string }) => {
     const response = await api.post(`/objects/${objectId}/laboratory-samples`, data);
     return response.data;
+  },
+
+  deleteObject: async (objectId: string) => {
+    const response = await api.delete(`/objects/${objectId}`);
+    return response.data;
   }
 };

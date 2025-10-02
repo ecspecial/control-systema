@@ -49,6 +49,25 @@ export const AdminPanel: FC = () => {
     }
   }, [activeTab]);
 
+  const handleDelete = async (objectId: string) => {
+    if (!window.confirm('Вы уверены, что хотите удалить этот объект? Это действие удалит все связанные данные и не может быть отменено.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await objectsService.deleteObject(objectId);
+      // Refresh objects list
+      const updatedObjects = objects.filter(obj => obj.id !== objectId);
+      setObjects(updatedObjects);
+    } catch (error) {
+      setError('Не удалось удалить объект');
+      console.error('Delete error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -92,6 +111,16 @@ export const AdminPanel: FC = () => {
                     <span className={`${styles.status} ${styles[object.status]}`}>
                       {getStatusDisplay(object.status)}
                     </span>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDelete(object.id);
+                      }}
+                      className={styles.deleteButton}
+                      disabled={loading}
+                    >
+                      {loading ? 'Удаление...' : 'Удалить объект'}
+                    </button>
                   </Link>
                 ))}
               </div>
