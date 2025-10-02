@@ -418,18 +418,25 @@ export class ObjectsService {
     try {
       // Get the electronic journal first
       const journal = await queryRunner.manager.findOne(ElectronicJournal, {
-        where: { cityObjectId: id }
+        where: { cityObjectId: id }  // This is the correct property name from the entity
       });
 
       if (journal) {
-        // Delete violation responses and documents first
+        // Delete violation responses first
         await queryRunner.manager.delete(ViolationResponse, {
-          violation: { journalId: journal.id }
+          violationId: In(  // Use the correct foreign key
+            await queryRunner.manager
+              .createQueryBuilder()
+              .select('violation.id')
+              .from(Violation, 'violation')
+              .where('violation.journalId = :journalId', { journalId: journal.id })
+              .getRawMany()
+          )
         });
 
         // Delete violations
         await queryRunner.manager.delete(Violation, {
-          journalId: journal.id
+          journalId: journal.id  // This matches the entity property name
         });
 
         // Delete the journal itself
@@ -440,7 +447,7 @@ export class ObjectsService {
 
       // Delete TTN entries
       const ttnEntries = await queryRunner.manager.find(TTNEntry, {
-        where: { workTypeId: In(
+        where: { workTypeId: In(  // This matches the entity property name
           await queryRunner.manager
             .createQueryBuilder()
             .select('workType.id')
@@ -461,6 +468,7 @@ export class ObjectsService {
 
       await queryRunner.commitTransaction();
     } catch (error) {
+      console.error('Delete error:', error);
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
