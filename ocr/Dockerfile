@@ -28,4 +28,4 @@ COPY app.py .
 EXPOSE 8000
 
 # Run the application using uvicorn factory pattern
-CMD ["uvicorn", "app:create_app", "--host", "0.0.0.0", "--port", "8000", "--factory"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
