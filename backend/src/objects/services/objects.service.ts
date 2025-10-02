@@ -463,6 +463,14 @@ export class ObjectsService {
         }
       }
 
+      // Delete laboratory samples for this object
+      await queryRunner.manager
+        .createQueryBuilder()
+        .delete()
+        .from('laboratory_samples')
+        .where('object_id = :id', { id })
+        .execute();
+
       // Finally delete the object
       await queryRunner.manager.delete(CityObject, { id });
 
