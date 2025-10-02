@@ -213,11 +213,6 @@ export const MapView: FC<MapViewProps> = ({
 
   return (
     <div className={styles.mapContainer}>
-      {editable && (
-        <div className={styles.hint}>
-          Перетащите точки для изменения формы полигона. Точки между вершинами можно перетащить для добавления новых точек.
-        </div>
-      )}
       <div ref={mapRef} className={styles.map}></div>
     </div>
   );
