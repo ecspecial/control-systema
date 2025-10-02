@@ -20,3 +20,7 @@ sudo nano /etc/nginx/sites-available/control-systema.ru
 sudo ln -s /etc/nginx/sites-available/control-systema.ru /etc/nginx/sites-enabled/
 
 sudo certbot --nginx -d control-systema.ru -d www.control-systema.ru
+
+
+sudo nginx -t
+sudo systemctl restart nginx
