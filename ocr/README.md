@@ -14,6 +14,8 @@ docker-compose down
 docker-compose build
 docker-compose up -d
 
+docker rmi ocr_ocr-service
+
 docker-compose logs -f
 
 ocr-service  | INFO:     Application startup complete.

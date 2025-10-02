@@ -11,7 +11,7 @@ export const ocrService = {
   submitOCR: async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await ocrApi.post('/ocr', formData, {
+    const response = await ocrApi.post('/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -20,7 +20,7 @@ export const ocrService = {
   },
 
   checkOCRStatus: async (taskId: string) => {
-    const response = await ocrApi.get(`/ocr/${taskId}`);
+    const response = await ocrApi.get(`/${taskId}`);
     return response.data;
   }
 };
