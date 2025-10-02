@@ -8,6 +8,45 @@ import styles from './AdminPanel.module.scss';
 
 type Tab = 'objects' | 'create';
 
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  objectName: string;
+}
+
+const DeleteModal: FC<DeleteModalProps> = ({ isOpen, onClose, onConfirm, objectName }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modal}>
+        <div className={styles.modalContent}>
+          <h3>Подтверждение удаления</h3>
+          <p>
+            Вы уверены, что хотите удалить объект "{objectName}"?<br />
+            Это действие удалит все связанные данные и не может быть отменено.
+          </p>
+          <div className={styles.modalActions}>
+            <button 
+              onClick={onClose}
+              className={styles.cancelButton}
+            >
+              Отмена
+            </button>
+            <button 
+              onClick={onConfirm}
+              className={styles.confirmButton}
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const getStatusDisplay = (status: string): string => {
   const statusMap: Record<string, string> = {
     'planned': 'Ожидает назначения контроля',
@@ -30,6 +69,15 @@ export const AdminPanel: FC = () => {
   const [objects, setObjects] = useState<CityObject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    objectId: string | null;
+    objectName: string;
+  }>({
+    isOpen: false,
+    objectId: null,
+    objectName: ''
+  });
 
   useEffect(() => {
     const fetchObjects = async () => {
@@ -49,22 +97,33 @@ export const AdminPanel: FC = () => {
     }
   }, [activeTab]);
 
-  const handleDelete = async (objectId: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, object: CityObject) => {
+    e.preventDefault();
+    setDeleteModal({
+      isOpen: true,
+      objectId: object.id,
+      objectName: object.name
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.objectId) return;
+
     if (!window.confirm('Вы уверены, что хотите удалить этот объект? Это действие удалит все связанные данные и не может быть отменено.')) {
       return;
     }
 
     try {
       setLoading(true);
-      await objectsService.deleteObject(objectId);
-      // Refresh objects list
-      const updatedObjects = objects.filter(obj => obj.id !== objectId);
+      await objectsService.deleteObject(deleteModal.objectId);
+      const updatedObjects = objects.filter(obj => obj.id !== deleteModal.objectId);
       setObjects(updatedObjects);
     } catch (error) {
       setError('Не удалось удалить объект');
       console.error('Delete error:', error);
     } finally {
       setLoading(false);
+      setDeleteModal({ isOpen: false, objectId: null, objectName: '' });
     }
   };
 
@@ -112,10 +171,7 @@ export const AdminPanel: FC = () => {
                       {getStatusDisplay(object.status)}
                     </span>
                     <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDelete(object.id);
-                      }}
+                      onClick={(e) => handleDeleteClick(e, object)}
                       className={styles.deleteButton}
                       disabled={loading}
                     >
@@ -130,6 +186,13 @@ export const AdminPanel: FC = () => {
           <CreateObject />
         )}
       </div>
+
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, objectId: null, objectName: '' })}
+        onConfirm={handleDeleteConfirm}
+        objectName={deleteModal.objectName}
+      />
     </div>
   );
 };
