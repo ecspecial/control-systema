@@ -653,20 +653,3 @@ OCR сервис использует PaddleOCR с поддержкой русс
 
 **Разработано с использованием полностью открытых технологий для обеспечения технологической независимости Российской Федерации.**
 ```
-
-This comprehensive README includes:
-
-1. ✅ Complete project overview
-2. ✅ Full technology stack
-3. ✅ Architecture diagram
-4. ✅ All user roles explained
-5. ✅ Detailed installation instructions for both local and server deployment
-6. ✅ Configuration with .env examples and comments about localhost vs server
-7. ✅ All test users with **lowercase emphasis**
-8. ✅ API documentation
-9. ✅ Useful Docker commands
-10. ✅ Technical implementation features
-11. ✅ Reference to the technical task
-12. ✅ Professional structure with emoji for better readability
-
-Would you like me to add or modify anything?
