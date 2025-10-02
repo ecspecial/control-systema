@@ -15,15 +15,19 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
       - UPLOAD_PATH=/app/uploads
+      - JWT_ACCESS_TOKEN_SECRET=${JWT_ACCESS_TOKEN_SECRET}
+      - JWT_ACCESS_TOKEN_EXPIRES_IN=${JWT_ACCESS_TOKEN_EXPIRES_IN}
+      - JWT_REFRESH_TOKEN_SECRET=${JWT_REFRESH_TOKEN_SECRET}
+      - JWT_REFRESH_TOKEN_EXPIRES_IN=${JWT_REFRESH_TOKEN_EXPIRES_IN}
+      - MAX_FILE_SIZE=${MAX_FILE_SIZE}
     volumes:
-      - ./logs:/app/logs
-      - .:/app
-      - /app/node_modules
       - ./uploads:/app/uploads
+      - ./logs:/app/logs
     restart: unless-stopped
     networks:
       - city_service_network
 
 networks:
   city_service_network:
-    external: true
+    name: city_service_network
+    driver: bridge
