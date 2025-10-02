@@ -1,5 +1,7 @@
 cd control-systema
 
+docker network create city_service_network
+
 cd frontend
 npm install
 docker-compose build

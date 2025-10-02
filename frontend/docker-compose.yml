@@ -19,5 +19,4 @@ services:
 
 networks:
   city_service_network:
-    name: city_service_network
-    driver: bridge
+    external: true

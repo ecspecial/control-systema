@@ -15,4 +15,3 @@ services:
 networks:
   city_service_network:
     external: true
-    name: city_service_network
