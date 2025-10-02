@@ -109,10 +109,6 @@ export const AdminPanel: FC = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteModal.objectId) return;
 
-    if (!window.confirm('Вы уверены, что хотите удалить этот объект? Это действие удалит все связанные данные и не может быть отменено.')) {
-      return;
-    }
-
     try {
       setLoading(true);
       await objectsService.deleteObject(deleteModal.objectId);
