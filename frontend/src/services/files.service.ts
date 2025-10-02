@@ -30,7 +30,10 @@ export const filesService = {
   },
 
   downloadFile: async (objectId: string, fileId: string, originalName?: string) => {
-    const response = await api.get(`/files/download/${objectId}/${fileId}`, {
+    // Extract just the filename if a full path is provided
+    const filename = fileId.split('/').pop() || fileId;
+    
+    const response = await api.get(`/files/download/${objectId}/${filename}`, {
       responseType: 'blob'
     });
     
@@ -42,8 +45,8 @@ export const filesService = {
     link.href = url;
     
     // Use original name for download if available, fallback to fileId
-    const filename = originalName || fileId;
-    link.setAttribute('download', filename);
+    const downloadName = originalName || filename;
+    link.setAttribute('download', downloadName);
     
     // Append to body, click, and remove
     document.body.appendChild(link);
