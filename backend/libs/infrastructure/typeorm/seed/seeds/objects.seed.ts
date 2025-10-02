@@ -39,6 +39,7 @@ export class ObjectsSeed extends BaseSeed {
     const objectsService = new ObjectsService(
       objectsRepository,
       objectRepository,
+      this.dataSource,
       electronicJournalService
     );
 
