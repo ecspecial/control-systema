@@ -12,7 +12,7 @@ interface ElectronicJournalProps {
   objectId: string;
   userRole?: string;
   onNotification: (message: string, type: 'success' | 'error') => void;
-  polygon: { type: string; coordinates: Array<[number, number]> }; // Update this prop name
+  polygon: { type: string; coordinates: Array<[number, number]> };
 }
 
 const VIOLATION_CATEGORIES = [
@@ -102,7 +102,7 @@ interface ViolationDocument {
   name: string;
   path: string;
   type: string;
-  originalName?: string; // Add this field
+  originalName?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -114,7 +114,6 @@ interface LocationData {
   timestamp: string;
 }
 
-// Make sure the response interface is complete
 interface ViolationResponse {
   id: string;
   violationId: string;
@@ -126,7 +125,6 @@ interface ViolationResponse {
   updatedAt: string;
 }
 
-// Update the violation interface to explicitly include responses
 interface Violation {
   id: string;
   category: string;
@@ -139,10 +137,9 @@ interface Violation {
   locationData?: LocationData;
   createdAt: string;
   updatedAt: string;
-  responses: ViolationResponse[]; // Make it required, not optional
+  responses: ViolationResponse[];
 }
 
-// Add this helper function at the top of the file, outside the component
 const getDocumentDisplayName = (doc: ViolationDocument, index: number) => {
   if (doc.name && doc.name.trim() !== '') {
     return doc.name;
@@ -167,7 +164,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
     name: '',
     customName: '',
     fixDeadlineDays: 1,
-    documents: [] as File[] // Keep this for initial document upload
+    documents: [] as File[]
   });
 
   // Add state for violations list
@@ -201,7 +198,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
       const [verified, position] = await verifyUserAtObject(polygon, true);
       setIsAtLocation(verified);
       
-      if (verified && position) { // Add null check for position
+      if (verified && position) {
         setLastVerifiedLocation(position);
         onNotification('Местоположение подтверждено', 'success');
       } else {
@@ -229,7 +226,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
   const fetchViolations = async () => {
     try {
       const data = await objectsService.getViolations(objectId);
-      console.log('Fetched violations:', data); // Add debug log
+      console.log('Fetched violations:', data);
       setViolations(data);
     } catch (error) {
       console.error('Error fetching violations:', error);
@@ -283,7 +280,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
         }
       });
 
-      // Then upload any initial documents if they exist
+      // Upload any initial documents if they exist
       if (violationForm.documents.length > 0) {
         for (const file of violationForm.documents) {
           await objectsService.uploadViolationDocument(
@@ -303,11 +300,11 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
         name: '',
         customName: '',
         fixDeadlineDays: 1,
-        documents: [] // Reset documents array
+        documents: []
       });
 
       onNotification('Нарушение добавлено', 'success');
-      fetchViolations(); // Refresh list after adding
+      fetchViolations();
     } catch (error) {
       console.error('Error creating violation:', error);
       onNotification('Ошибка при добавлении нарушения', 'error');
@@ -344,7 +341,6 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
     }
   };
 
-  // Add handleDownload function (assuming it's implemented in objectsService or elsewhere)
   const handleDownload = async (
     e: React.MouseEvent<HTMLButtonElement>,
     objectId: string,
@@ -361,7 +357,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
     }
   };
 
-  // Add this function to handle initial document selection
+  // Function to handle initial document selection
   const handleInitialDocumentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     setViolationForm(prev => ({
@@ -370,7 +366,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
     }));
   };
 
-  // Add this function to remove a document from the initial form
+  // Function to remove a document from the initial form
   const removeInitialDocument = (index: number) => {
     setViolationForm(prev => ({
       ...prev,
@@ -378,7 +374,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
     }));
   };
 
-  // Add these functions to handle responses
+  // Functions to handle responses
   const handleResponseSubmit = async (
     violationId: string,
     data: { description: string; documents: File[] }
@@ -654,8 +650,8 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
         ) : (
           <div className={styles.violations}>
             {violations.map((violation: Violation) => {
-              console.log('Rendering violation:', violation); // Add debug log
-              console.log('Violation responses:', violation.responses); // Add debug log
+              console.log('Rendering violation:', violation);
+              console.log('Violation responses:', violation.responses);
               return (
                 <div key={violation.id} className={styles.violationItem}>
                   <div className={styles.violationHeader}>
@@ -759,7 +755,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
                   {/* Add response section */}
                   <div className={styles.violationResponses}>
                     <h4>История устранения</h4>
-                    {Array.isArray(violation.responses) && violation.responses.length > 0 ? ( // Add Array.isArray check
+                    {Array.isArray(violation.responses) && violation.responses.length > 0 ? (
                       violation.responses.map(response => (
                         <div key={response.id} className={styles.responseItem}>
                           <div className={styles.responseHeader}>
@@ -777,7 +773,7 @@ export const ElectronicJournal: FC<ElectronicJournalProps> = ({
                             <div className={styles.responseDescription}>{response.description}</div>
                           )}
 
-                          {Array.isArray(response.documents) && response.documents.length > 0 && ( // Add Array.isArray check
+                          {Array.isArray(response.documents) && response.documents.length > 0 && ( 
                             <div className={styles.responseDocuments}>
                               <h5>Приложенные документы:</h5>
                               {response.documents.map((doc: ViolationDocument) => (

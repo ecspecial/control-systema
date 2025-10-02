@@ -8,7 +8,7 @@ import { cfg } from '@infra/config';
 export async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: cfg.app.nodeEnv === 'development' }), // Changed from mode to nodeEnv
+    new FastifyAdapter({ logger: cfg.app.nodeEnv === 'development' }),
   );
 
   app.setGlobalPrefix('api')

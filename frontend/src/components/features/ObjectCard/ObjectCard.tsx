@@ -118,7 +118,7 @@ export const ObjectCard: FC<ObjectCardProps> = ({
       /> */}
 
     <MapView 
-      center={[object.coordinates.lat, object.coordinates.lng]} // Try [lat, lng] instead
+      center={[object.coordinates.lat, object.coordinates.lng]}
       coordinates={[
         [object.coordinates.lat, object.coordinates.lng],
         [object.coordinates.lat + 0.001, object.coordinates.lng],

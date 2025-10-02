@@ -68,5 +68,5 @@ export class CreateObjectDto {
   workSchedule: WorkScheduleDto;
 
   @IsArray()
-  documents: any[]; // TODO: Добавить валидацию для документов
+  documents: any[];
 }

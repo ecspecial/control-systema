@@ -4,8 +4,8 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { TTNService } from '../services/ttn.service';
-import { ObjectsService } from '../services/objects.service'; // Add this import
-import * as fs from 'fs'; // Added for file system operations
+import { ObjectsService } from '../services/objects.service';
+import * as fs from 'fs';
 
 interface CreateTTNEntryDto {
   workTypeId: string;
@@ -16,7 +16,7 @@ interface CreateTTNEntryDto {
 export class TTNController {
   constructor(
     private readonly ttnService: TTNService,
-    private readonly objectsService: ObjectsService, // Add this injection
+    private readonly objectsService: ObjectsService,
   ) {}
 
   @Get()
@@ -80,7 +80,7 @@ export class TTNController {
     const document = {
       id: uuidv4(),
       name: Buffer.from(file.originalname, 'latin1').toString('utf8'),
-      path: `documents/${objectId}/${file.filename}`, // This path should match where we actually save the file
+      path: `documents/${objectId}/${file.filename}`,
       type: file.mimetype,
       status: 'approved',
       createdAt: new Date().toISOString(),

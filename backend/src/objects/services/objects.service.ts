@@ -35,7 +35,7 @@ export class ObjectsService {
     private readonly objectsRepository: ObjectsRepository,
     @InjectRepository(CityObject)
     private readonly objectRepository: Repository<CityObject>,
-    private readonly dataSource: DataSource,  // Add this
+    private readonly dataSource: DataSource,
     private readonly electronicJournalService: ElectronicJournalService,
   ) {}
 

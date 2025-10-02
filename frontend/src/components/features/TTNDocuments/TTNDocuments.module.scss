@@ -205,7 +205,7 @@
   background: #f8f9fa;
   border-radius: 4px;
   padding: 16px;
-  margin-top: 24px; // Increased margin
+  margin-top: 24px;
 
   > label {
     display: block;
@@ -227,7 +227,7 @@
   margin-bottom: 8px;
   font-size: 14px;
   color: #495057;
-  word-break: break-word; // Handle long filenames
+  word-break: break-word;
 
   &:last-child {
     margin-bottom: 0;
@@ -246,8 +246,8 @@
   display: flex;
   gap: 16px;
   justify-content: flex-end;
-  margin-top: 32px; // Increased margin
-  flex-wrap: wrap; // Allow wrapping on mobile
+  margin-top: 32px;
+  flex-wrap: wrap;
 }
 
 .cancelButton, .submitButton {
@@ -261,7 +261,7 @@
   text-align: center;
 
   @media (max-width: 480px) {
-    width: 100%; // Full width on mobile
+    width: 100%;
     min-width: auto;
   }
 }
@@ -473,7 +473,6 @@
   font-size: 14px;
 }
 
-// Update locationStatus styles to ensure visibility
 .locationStatus {
   margin-bottom: 20px;
   padding: 12px;
@@ -483,8 +482,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid #dee2e6; // Add border to make it more visible
-  width: 100%; // Ensure full width
+  border: 1px solid #dee2e6;
+  width: 100%;
 }
 
 .locationVerified {
@@ -534,7 +533,6 @@
   gap: 8px;
 }
 
-// Add disabled state for forms when not at location
 .addTTNForm {
   &.formDisabled {
     opacity: 0.7;

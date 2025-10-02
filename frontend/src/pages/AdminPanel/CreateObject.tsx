@@ -105,7 +105,6 @@ export const CreateObject: FC = () => {
   };
 
   const handleMapPointsChange = (newCoordinates: Array<[number, number]>) => {
-    // newCoordinates are already in [lat, lng] format
     setPoints(newCoordinates);
     setFormData(prev => ({
       ...prev,
@@ -185,7 +184,7 @@ export const CreateObject: FC = () => {
         endDate: newWorkType.endDate,
         unit: newWorkType.unit || 'шт',
         amount: newWorkType.amount || 1,
-        status: WorkStatus.NOT_STARTED // Use the enum value 'not_started'
+        status: WorkStatus.NOT_STARTED 
       };
 
       setFormData(prev => ({
@@ -231,8 +230,8 @@ export const CreateObject: FC = () => {
         
         return {
           id: Date.now().toString(),
-          type: 'document', // Use 'document' type for regular documents
-          name: nameWithoutExt, // Store name without extension
+          type: 'document', 
+          name: nameWithoutExt, 
           file: file,
           status: 'pending'
         };

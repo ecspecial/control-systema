@@ -14,14 +14,14 @@ export class LaboratorySamplesService {
   async create(objectId: string, createDto: CreateLaboratorySampleDto): Promise<LaboratorySample> {
     try {
       const sample = this.sampleRepository.create({
-        materialName: createDto.materialName, // TypeORM will handle the conversion to snake_case
+        materialName: createDto.materialName,
         description: createDto.description,
         objectId,
         status: SampleStatus.PENDING
       });
       return await this.sampleRepository.save(sample);
     } catch (error) {
-      if (error.code === '23503') { // Foreign key violation
+      if (error.code === '23503') {
         throw new BadRequestException(`Object with ID "${objectId}" not found`);
       }
       throw error;
@@ -30,8 +30,8 @@ export class LaboratorySamplesService {
 
   async findByObject(objectId: string): Promise<LaboratorySample[]> {
     return this.sampleRepository.find({
-      where: { objectId }, // TypeORM will handle the conversion to snake_case
-      order: { createdAt: 'DESC' } // TypeORM will handle the conversion to snake_case
+      where: { objectId },
+      order: { createdAt: 'DESC' }
     });
   }
 

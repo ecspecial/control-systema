@@ -5,9 +5,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import styles from './MapView.module.scss';
 
 interface MapViewProps {
-  center: [number, number]; // [lng, lat] as received from backend
+  center: [number, number];
   zoom?: number;
-  coordinates: Array<[number, number]>; // [lng, lat] array as received from backend
+  coordinates: Array<[number, number]>;
   editable?: boolean;
   onChange?: (coordinates: Array<[number, number]>) => void;
 }
@@ -52,7 +52,7 @@ export const MapView: FC<MapViewProps> = ({
             }
           ]
         },
-        center: center, // Already in [lng, lat], no need to convert
+        center: center,
         zoom: zoom
       });
 
@@ -95,8 +95,7 @@ export const MapView: FC<MapViewProps> = ({
 
     if (coords.length === 0) return;
 
-    // No need to convert coordinates, they're already in [lng, lat]
-    const polygonCoords = [...coords, coords[0]]; // Just close the polygon
+    const polygonCoords = [...coords, coords[0]];
 
     // Add polygon source
     map.addSource('area', {
@@ -133,12 +132,10 @@ export const MapView: FC<MapViewProps> = ({
       }
     });
 
-    // Update bounds
     const bounds = new maplibregl.LngLatBounds();
     coords.forEach(coord => bounds.extend(coord));
     map.fitBounds(bounds, { padding: 50, maxZoom: zoom });
 
-    // Update markers
     if (editable && onChange) {
       coords.forEach((coord, index) => {
         const markerEl = document.createElement('div');
@@ -156,13 +153,13 @@ export const MapView: FC<MapViewProps> = ({
           element: markerEl,
           draggable: true
         })
-          .setLngLat(coord) // Already in [lng, lat]
+          .setLngLat(coord)
           .addTo(map);
 
         marker.on('dragend', () => {
           const lngLat = marker.getLngLat();
           const newCoords = [...coords];
-          newCoords[index] = [lngLat.lng, lngLat.lat]; // Keep in [lng, lat]
+          newCoords[index] = [lngLat.lng, lngLat.lat];
           console.log('Marker dragged, new coords:', newCoords);
           onChange(newCoords);
         });
@@ -181,7 +178,7 @@ export const MapView: FC<MapViewProps> = ({
         const midLat = (coord1[1] + coord2[1]) / 2;
 
         const midpointEl = document.createElement('div');
-        midpointEl.className = styles.marker; // Use same style as main markers
+        midpointEl.className = styles.marker;
         midpointEl.style.width = '12px';
         midpointEl.style.height = '12px';
         midpointEl.style.backgroundColor = '#ff0000';
@@ -195,13 +192,13 @@ export const MapView: FC<MapViewProps> = ({
           element: midpointEl,
           draggable: true
         })
-          .setLngLat([midLng, midLat]) // Keep in [lng, lat]
+          .setLngLat([midLng, midLat])
           .addTo(map);
 
         midpointMarker.on('dragend', () => {
           const lngLat = midpointMarker.getLngLat();
           const newCoords = [...coords];
-          newCoords.splice(nextIndex, 0, [lngLat.lng, lngLat.lat]); // Keep in [lng, lat]
+          newCoords.splice(nextIndex, 0, [lngLat.lng, lngLat.lat]);
           console.log('Midpoint dragged, new coords:', newCoords);
           onChange(newCoords);
         });

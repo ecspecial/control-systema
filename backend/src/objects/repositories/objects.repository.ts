@@ -17,7 +17,6 @@ export class ObjectsRepository {
       ...createObjectDto,
       status: ObjectStatus.PLANNED,
       createdById: userId,
-      // Work schedule is already processed in service
       workSchedule: createObjectDto.workSchedule
     });
 

@@ -1,6 +1,6 @@
 export class CreateViolationResponseDto {
   description?: string;
-  documents?: string[]; // Array of document IDs if they're uploaded separately
+  documents?: string[];
 }
 
 export class UpdateViolationResponseStatusDto {

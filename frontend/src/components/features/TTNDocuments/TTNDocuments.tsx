@@ -15,8 +15,8 @@ interface DocumentFile {
 interface TTNDocumentsProps {
   objectId: string;
   onNotification: (message: string, type: 'success' | 'error') => void;
-  polygon: { type: string; coordinates: Array<[number, number]> }; // Add this prop
-  userRole?: string;  // Add this
+  polygon: { type: string; coordinates: Array<[number, number]> };
+  userRole?: string; 
 }
 
 // Add interface for TTN entries
@@ -66,7 +66,7 @@ interface QueuedTTN {
 // Add interface for TTN creation data
 interface CreateTTNData {
   description: string;
-  status?: 'pending_ocr' | 'completed';  // Make status optional
+  status?: 'pending_ocr' | 'completed';
 }
 
 // Add state for selected OCR files in queue

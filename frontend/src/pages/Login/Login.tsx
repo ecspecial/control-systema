@@ -17,7 +17,7 @@ export const Login: FC = () => {
     try {
       const response = await authService.login({ login, password });
       authService.setToken(response.accessToken);
-      authService.setUser(response.user); // Use the service method instead of direct localStorage
+      authService.setUser(response.user);
       
       // Redirect based on role
       if (response.user.role === UserRole.ADMIN) {
