@@ -119,7 +119,7 @@ export const AdminPanel: FC = () => {
                       className={styles.deleteButton}
                       disabled={loading}
                     >
-                      {loading ? 'Удаление...' : 'Удалить объект'}
+                      {loading ? '...' : 'Удалить объект'}
                     </button>
                   </Link>
                 ))}

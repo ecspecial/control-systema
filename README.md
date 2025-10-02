@@ -37,4 +37,4 @@ sudo certbot --nginx -d control-systema.ru -d www.control-systema.ru
 sudo nginx -t
 sudo systemctl restart nginx
 
-docker compose build && docker compose down && docker compose up -d
+docker-compose build && docker-compose down && docker-compose up -d
