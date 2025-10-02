@@ -9,9 +9,6 @@ import asyncio
 import uuid
 from contextlib import asynccontextmanager
 from typing import Dict, Optional
-from functools import partial
-from asyncio import Queue, get_event_loop
-from concurrent.futures import ThreadPoolExecutor
 
 # Set up detailed logging
 logging.basicConfig(
@@ -25,45 +22,28 @@ logger = logging.getLogger(__name__)
 ocr = None
 
 # Create processing queue and results storage
-process_queue = Queue()  # Use asyncio.Queue() instead of creating it early
+process_queue = asyncio.Queue()
 results_storage: Dict[str, Optional[Dict]] = {}
 MAX_QUEUE_SIZE = 10  # Limit queue size
-worker_task = None
-executor = ThreadPoolExecutor(max_workers=1)  # For OCR processing
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global ocr, worker_task, process_queue
+    global ocr
     logger.info("=" * 60)
     logger.info("APPLICATION STARTUP")
     logger.info("=" * 60)
-    
-    # Initialize OCR
     logger.info("Initializing PaddleOCR with Russian language support...")
     ocr = PaddleOCR(lang='ru', use_textline_orientation=True)
     logger.info("PaddleOCR initialized successfully!")
     
-    # Initialize queue and worker
-    loop = get_event_loop()
-    process_queue = Queue()
-    worker_task = loop.create_task(process_queue_worker())
+    # Start background worker
+    asyncio.create_task(process_queue_worker())
     
     logger.info("Queue worker started")
     logger.info("Ready to process images")
     logger.info("=" * 60)
-    
-    try:
-        yield
-    finally:
-        # Cleanup
-        if worker_task:
-            worker_task.cancel()
-            try:
-                await worker_task
-            except:
-                pass
-        executor.shutdown(wait=False)
-        logger.info("Application shutting down...")
+    yield
+    logger.info("Application shutting down...")
 
 app = FastAPI(lifespan=lifespan)
 
@@ -79,18 +59,13 @@ app.add_middleware(
 async def process_queue_worker():
     while True:
         try:
-            # Get task from queue with timeout
-            try:
-                task_id, temp_path = await asyncio.wait_for(process_queue.get(), timeout=1.0)
-            except asyncio.TimeoutError:
-                continue
-
+            # Get task from queue
+            task_id, temp_path = await process_queue.get()
             logger.info(f"Processing task {task_id}")
 
             try:
-                # Process image in thread executor
-                loop = get_event_loop()
-                result = await loop.run_in_executor(executor, ocr.predict, temp_path)
+                # Process image
+                result = ocr.predict(temp_path)
                 
                 # Extract text
                 full_text = ""
@@ -115,8 +90,6 @@ async def process_queue_worker():
                 # Mark task as done
                 process_queue.task_done()
                 
-        except asyncio.CancelledError:
-            break
         except Exception as e:
             logger.error(f"Queue worker error: {str(e)}")
             await asyncio.sleep(1)  # Prevent tight loop on error
