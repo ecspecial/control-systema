@@ -11,6 +11,7 @@ import { TTNEntry } from '../entities/ttn-entry.entity';
 import { ElectronicJournal } from '../../electronic-journal/entities/electronic-journal.entity';
 import { Violation } from '../../electronic-journal/entities/violation.entity';
 import { ViolationResponse } from '../../electronic-journal/entities/violation-response.entity';
+import { LaboratorySample } from '../../laboratory-samples/entities/laboratory-sample.entity';
 
 interface Document {
   id: string;
@@ -416,38 +417,43 @@ export class ObjectsService {
     await queryRunner.startTransaction();
 
     try {
-      // Get the electronic journal first
+      // 1. Delete laboratory samples (has FK to city_objects)
+      await queryRunner.manager.delete(LaboratorySample, {
+        objectId: id
+      });
+
+      // 2. Get the electronic journal
       const journal = await queryRunner.manager.findOne(ElectronicJournal, {
         where: { cityObjectId: id }
       });
 
       if (journal) {
-        // Get all violations for this journal
+        // 2a. Get all violations for this journal
         const violations = await queryRunner.manager.find(Violation, {
           where: { journalId: journal.id }
         });
 
-        // Delete violation responses for each violation
+        // 2b. Delete violation responses (has FK to violations)
         if (violations.length > 0) {
           for (const violation of violations) {
             await queryRunner.manager.delete(ViolationResponse, {
               violationId: violation.id
             });
           }
-
-          // Delete all violations
-          await queryRunner.manager.delete(Violation, {
-            journalId: journal.id
-          });
         }
 
-        // Delete the journal itself
+        // 2c. Delete all violations (has FK to electronic_journals)
+        await queryRunner.manager.delete(Violation, {
+          journalId: journal.id
+        });
+
+        // 2d. Delete the electronic journal (has FK to city_objects)
         await queryRunner.manager.delete(ElectronicJournal, {
           id: journal.id
         });
       }
 
-      // Get the object to find work type IDs
+      // 3. Delete TTN entries (references workTypeId from workSchedule JSONB)
       const object = await queryRunner.manager.findOne(CityObject, {
         where: { id }
       });
@@ -455,7 +461,6 @@ export class ObjectsService {
       if (object?.workSchedule?.workTypes) {
         const workTypeIds = object.workSchedule.workTypes.map(wt => wt.id);
         
-        // Delete TTN entries for these work types
         if (workTypeIds.length > 0) {
           await queryRunner.manager.delete(TTNEntry, {
             workTypeId: In(workTypeIds)
@@ -463,15 +468,7 @@ export class ObjectsService {
         }
       }
 
-      // Delete laboratory samples for this object
-      await queryRunner.manager
-        .createQueryBuilder()
-        .delete()
-        .from('laboratory_samples')
-        .where('object_id = :id', { id })
-        .execute();
-
-      // Finally delete the object
+      // 4. Finally delete the city object itself
       await queryRunner.manager.delete(CityObject, { id });
 
       await queryRunner.commitTransaction();
