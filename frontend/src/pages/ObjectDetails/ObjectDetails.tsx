@@ -1171,6 +1171,8 @@ export const ObjectDetails: FC = () => {
           {activeTab === 'ttn' && (
             <TTNDocuments
               objectId={object.id}
+              userRole={user?.role as UserRole}
+              polygon={object.polygon}
               onNotification={(message, type) => setNotification({
                 show: true,
                 message,

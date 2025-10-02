@@ -4,6 +4,8 @@ import { ttnService } from '../../../services/ttn.service';
 import { ocrService } from '../../../services/ocr.service';
 import type { WorkType } from '../../../types/city-object.types';
 import styles from './TTNDocuments.module.scss';
+import { verifyUserAtObject } from '../../../utils/geolocation';
+import { UserRole } from '../../../types/user.types';
 
 interface DocumentFile {
   file: File;
@@ -13,6 +15,8 @@ interface DocumentFile {
 interface TTNDocumentsProps {
   objectId: string;
   onNotification: (message: string, type: 'success' | 'error') => void;
+  polygon: { type: string; coordinates: Array<[number, number]> }; // Add this prop
+  userRole?: string;  // Add this
 }
 
 // Add interface for TTN entries
@@ -44,7 +48,23 @@ interface QueueTimer {
   intervalId?: number;
 }
 
-export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }) => {
+export const TTNDocuments: FC<TTNDocumentsProps> = ({ 
+  objectId, 
+  onNotification,
+  polygon,
+  userRole
+}) => {
+  // Add this debug log at the start
+  console.log('TTNDocuments mounted:', {
+    userRole,
+    isUserRoleValid: typeof userRole === 'string',
+    expectedRoles: {
+      CONTROL: UserRole.CONTROL,
+      INSPECTOR: UserRole.INSPECTOR,
+      CONTRACTOR: UserRole.CONTRACTOR
+    }
+  });
+
   // Add state for TTN entries
   const [ttnEntries, setTtnEntries] = useState<Record<string, TTNEntry[]>>({});
   const [workTypes, setWorkTypes] = useState<WorkType[]>([]);
@@ -56,9 +76,18 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
   const [ocrProcessing, setOcrProcessing] = useState(false);
   const [selectedOCRFile, setSelectedOCRFile] = useState<OCRFile | null>(null);
   const [queueTimer, setQueueTimer] = useState<QueueTimer | null>(null);
+  const [isAtLocation, setIsAtLocation] = useState<boolean>(false);
+  const [checkingLocation, setCheckingLocation] = useState<boolean>(false);
+  const [lastVerifiedLocation, setLastVerifiedLocation] = useState<GeolocationPosition | null>(null);
 
   // Add a ref to track if we've received a successful response
   const hasReceivedResult = useRef(false);
+
+  // Memoize the notification callback to prevent infinite loops
+  const notifyRef = useRef(onNotification);
+  useEffect(() => {
+    notifyRef.current = onNotification;
+  }, [onNotification]);
 
   // Cleanup timer on unmount
   useEffect(() => {
@@ -103,7 +132,7 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
         data.forEach((workType: WorkType) => fetchTTNEntries(workType.id));
       } catch (error) {
         console.error('Error fetching work types:', error);
-        onNotification('Ошибка при загрузке видов работ', 'error');
+        notifyRef.current('Ошибка при загрузке видов работ', 'error');
       } finally {
         setLoading(false);
       }
@@ -137,12 +166,12 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
           // Remove task from localStorage
           removeOCRTask(taskId);
           clearInterval(intervalId);
-          onNotification('Текст успешно распознан', 'success');
+          notifyRef.current('Текст успешно распознан', 'success');
         } else if (result.status === 'error') {
           hasReceivedResult.current = true;
           removeOCRTask(taskId);
           clearInterval(intervalId);
-          onNotification('Ошибка при распознавании текста', 'error');
+          notifyRef.current('Ошибка при распознавании текста', 'error');
         }
       } catch (error) {
         console.error('Error checking OCR status:', error);
@@ -194,16 +223,51 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      onNotification('Документ успешно скачан', 'success');
+      notifyRef.current('Документ успешно скачан', 'success');
     } catch (error) {
       console.error('Error downloading document:', error);
-      onNotification('Ошибка при скачивании документа', 'error');
+      notifyRef.current('Ошибка при скачивании документа', 'error');
     }
   };
+
+  const verifyLocation = async () => {
+    setCheckingLocation(true);
+    try {
+      const [verified, position] = await verifyUserAtObject(polygon, true);
+      setIsAtLocation(verified);
+      
+      if (verified && position) {
+        setLastVerifiedLocation(position);
+        notifyRef.current('Местоположение подтверждено', 'success');
+      } else {
+        setLastVerifiedLocation(null);
+        notifyRef.current('Вы должны находиться на объекте для добавления документов', 'error');
+      }
+    } catch (error: any) {
+      console.error('Location verification error:', error);
+      setLastVerifiedLocation(null);
+      notifyRef.current(
+        error.message || 'Ошибка проверки местоположения', 
+        'error'
+      );
+    } finally {
+      setCheckingLocation(false);
+    }
+  };
+
+  // Only verify location on mount and when polygon changes
+  useEffect(() => {
+    verifyLocation();
+  }, [polygon]); // Remove onNotification from deps array
 
   // Modify handleSubmit to update the entries after successful addition
   const handleSubmit = async () => {
     if (!selectedWorkType || !description || selectedFiles.length === 0) return;
+
+    if (!isAtLocation || !lastVerifiedLocation) {
+      notifyRef.current('Необходимо подтвердить местоположение', 'error');
+      return;
+    }
 
     setUploading(true);
     try {
@@ -218,13 +282,13 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
       // Refresh TTN entries for this work type
       await fetchTTNEntries(selectedWorkType.id);
 
-      onNotification('Документы успешно добавлены', 'success');
+      notifyRef.current('Документы успешно добавлены', 'success');
       setDescription('');
       setSelectedFiles([]);
       setSelectedWorkType(null);
     } catch (error) {
       console.error('Error creating TTN entry:', error);
-      onNotification('Ошибка при создании записи', 'error');
+      notifyRef.current('Ошибка при создании записи', 'error');
     } finally {
       setUploading(false);
     }
@@ -272,7 +336,7 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
       const result = await ocrService.submitOCR(selectedOCRFile.file);
       if (result.task_id) {
         startOCRPolling(result.task_id, selectedWorkType.id);
-        onNotification('Документ отправлен на распознавание', 'success');
+        notifyRef.current('Документ отправлен на распознавание', 'success');
         setSelectedOCRFile(prev => prev ? { ...prev, status: 'processing' } : null);
         
         // Start timer based on queue position
@@ -282,15 +346,60 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
       }
     } catch (error) {
       console.error('Error submitting OCR:', error);
-      onNotification('Ошибка при отправке документа на распознавание', 'error');
+      notifyRef.current('Ошибка при отправке документа на распознавание', 'error');
       setSelectedOCRFile(null);
     }
   };
+
+  const canAddDocuments = userRole === UserRole.CONTROL || userRole === UserRole.INSPECTOR || userRole === UserRole.CONTRACTOR;
+
+  console.log('🔍 TTN Debug:', { 
+    userRole, 
+    canAddDocuments, 
+    loading,
+    isAtLocation,
+    checkingLocation,
+    polygon,
+    UserRole_CONTROL: UserRole.CONTROL,
+    UserRole_INSPECTOR: UserRole.INSPECTOR,
+    UserRole_CONTRACTOR: UserRole.CONTRACTOR
+  });
 
   if (loading) return <div>Загрузка...</div>;
 
   return (
     <div className={styles.ttnDocuments}>
+      {/* Show location status for all users */}
+      <div className={styles.locationStatus}>
+        {checkingLocation ? (
+          <span className={styles.checkingLocation}>
+            Проверка местоположения...
+          </span>
+        ) : isAtLocation ? (
+          <div className={styles.locationVerified}>
+            <span>✓ Местоположение подтверждено</span>
+            <button 
+              onClick={verifyLocation}
+              className={styles.retryButton}
+              title="Обновить проверку местоположения"
+            >
+              Проверить снова
+            </button>
+          </div>
+        ) : (
+          <div className={styles.locationWarning}>
+            <span>⚠️ Вы должны находиться на объекте для добавления документов</span>
+            <button 
+              onClick={verifyLocation}
+              className={styles.retryButton}
+            >
+              Проверить местоположение
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Rest of your existing workTypesList */}
       <div className={styles.workTypesList}>
         {workTypes.map((workType) => (
           <div key={workType.id} className={styles.workTypeItem}>
@@ -322,8 +431,8 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
             </div>
             
             {selectedWorkType?.id === workType.id ? (
-              // Show form directly under the work item
-              <div className={styles.addTTNForm}>
+              // Add formDisabled class when not at location
+              <div className={`${styles.addTTNForm} ${!isAtLocation && canAddDocuments ? styles.formDisabled : ''}`}>
                 <div className={styles.formGroup}>
                   <label>Описание</label>
                   <textarea
@@ -449,6 +558,7 @@ export const TTNDocuments: FC<TTNDocumentsProps> = ({ objectId, onNotification }
                 <button
                   className={styles.addButton}
                   onClick={() => setSelectedWorkType(workType)}
+                  disabled={!isAtLocation && canAddDocuments} // Disable button when not at location
                 >
                   Добавить документы
                 </button>

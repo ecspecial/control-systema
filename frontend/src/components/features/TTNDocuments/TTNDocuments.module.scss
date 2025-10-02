@@ -1,7 +1,6 @@
 .ttnDocuments {
   padding: 16px;
   max-width: 100%;
-  overflow-x: hidden;
 }
 
 .workTypesList {
@@ -471,4 +470,73 @@
   color: #343a40;
   font-weight: 500;
   font-size: 14px;
+}
+
+// Update locationStatus styles to ensure visibility
+.locationStatus {
+  margin-bottom: 20px;
+  padding: 12px;
+  border-radius: 4px;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #dee2e6; // Add border to make it more visible
+  width: 100%; // Ensure full width
+}
+
+.locationVerified {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #2e7d32;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.locationWarning {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #d32f2f;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.retryButton {
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.checkingLocation {
+  color: #1976d2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// Add disabled state for forms when not at location
+.addTTNForm {
+  &.formDisabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 }
