@@ -418,26 +418,28 @@ export class ObjectsService {
     try {
       // Get the electronic journal first
       const journal = await queryRunner.manager.findOne(ElectronicJournal, {
-        where: { cityObjectId: id }  // This is the correct property name from the entity
+        where: { cityObjectId: id }
       });
 
       if (journal) {
-        // Delete violation responses first
-        await queryRunner.manager.delete(ViolationResponse, {
-          violationId: In(  // Use the correct foreign key
-            await queryRunner.manager
-              .createQueryBuilder()
-              .select('violation.id')
-              .from(Violation, 'violation')
-              .where('violation.journalId = :journalId', { journalId: journal.id })
-              .getRawMany()
-          )
+        // Get all violations for this journal
+        const violations = await queryRunner.manager.find(Violation, {
+          where: { journalId: journal.id }
         });
 
-        // Delete violations
-        await queryRunner.manager.delete(Violation, {
-          journalId: journal.id  // This matches the entity property name
-        });
+        // Delete violation responses for each violation
+        if (violations.length > 0) {
+          for (const violation of violations) {
+            await queryRunner.manager.delete(ViolationResponse, {
+              violationId: violation.id
+            });
+          }
+
+          // Delete all violations
+          await queryRunner.manager.delete(Violation, {
+            journalId: journal.id
+          });
+        }
 
         // Delete the journal itself
         await queryRunner.manager.delete(ElectronicJournal, {
@@ -445,22 +447,20 @@ export class ObjectsService {
         });
       }
 
-      // Delete TTN entries
-      const ttnEntries = await queryRunner.manager.find(TTNEntry, {
-        where: { workTypeId: In(  // This matches the entity property name
-          await queryRunner.manager
-            .createQueryBuilder()
-            .select('workType.id')
-            .from(CityObject, 'obj')
-            .where('obj.id = :id', { id })
-            .getRawMany()
-        ) }
+      // Get the object to find work type IDs
+      const object = await queryRunner.manager.findOne(CityObject, {
+        where: { id }
       });
 
-      if (ttnEntries.length > 0) {
-        await queryRunner.manager.delete(TTNEntry, {
-          id: In(ttnEntries.map(entry => entry.id))
-        });
+      if (object?.workSchedule?.workTypes) {
+        const workTypeIds = object.workSchedule.workTypes.map(wt => wt.id);
+        
+        // Delete TTN entries for these work types
+        if (workTypeIds.length > 0) {
+          await queryRunner.manager.delete(TTNEntry, {
+            workTypeId: In(workTypeIds)
+          });
+        }
       }
 
       // Finally delete the object
